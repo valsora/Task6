@@ -4,12 +4,12 @@ public class Task6 {
     public static void main(String[] args) {
         System.out.println("1. " + hiddenAnagram("Bright is the moon", "Bongo mirth"));
         System.out.println("2. " );
-        System.out.println("3. " );
+        System.out.println("3. " + nicoCipher("iloveher", "612345"));
         System.out.println("4. " );
         System.out.println("5. " );
-        System.out.println("6. " );
-        System.out.println("7. " );
-        System.out.println("8. " + formula("6 * 4 = 24"));
+        System.out.println("6. " + fractions("0.19(2367)"));
+        System.out.println("7. " + pilish_string("CANIMAKEAGUESSNOW"));
+        System.out.println("8. " + formula("16 * 10 = 160 = 14 + 120"));
         System.out.println("9. " + isValid("abcdefghhgfedecba"));
         System.out.println("10. " + palindromeDescendant(23336014));
     }
@@ -43,13 +43,148 @@ public class Task6 {
         return "noutfond";
     }
 
+    public static String nicoCipher(String message, String key) {
+        int height = message.length() / key.length();
+        if (message.length() % key.length() != 0) height += 1;
+        char[][] matrix = new char[height][key.length()];
+        for (int i = 0; i < message.length(); i++) {
+            matrix[i / key.length()][i % key.length()] = message.charAt(i);
+        }
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < key.length(); j++) {
+                System.out.print(matrix[i][j]);
+            }
+            System.out.println();
+        }
+        char[][] sortedMatrix = new char[height][key.length()];
+        ArrayList<Integer> charsOfKey = new ArrayList<>();
+        for (int i = 0; i < key.length(); i++) {
+            charsOfKey.add((int)key.charAt(i));
+        }
+        Collections.sort(charsOfKey);
+        for (int i = 0; i < key.length(); i++) {
+            for (int j = 0; j < height; j++) {
+                sortedMatrix[j][i] = matrix[j][key.indexOf(charsOfKey.get(i))];
+            }
+            key = key.replaceFirst((char)(int)charsOfKey.get(i) + "", "+");
+        }
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < key.length(); j++) {
+                System.out.print(sortedMatrix[i][j]);
+            }
+            System.out.println();
+        }
+        String eMessage = "";
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < key.length(); j++) {
+                if ((int)sortedMatrix[i][j] == 0) eMessage += " ";
+                else eMessage += sortedMatrix[i][j];
+            }
+        }
+        return eMessage.toString();
+    }
+
+    // public static int[] isExact(int n) {
+        
+    // }
+
+    public static String fractions(String fraction) {
+        int pointIndex = fraction.indexOf('.');
+        int leftBracketIndex = fraction.indexOf('(');
+        int rightBracketIndex = fraction.indexOf(')');
+        int intPart = Integer.parseInt(fraction.substring(0, pointIndex));
+        int period = Integer.parseInt(fraction.substring(leftBracketIndex + 1, rightBracketIndex));
+        int numerator;
+        int denominator;
+        if (pointIndex + 1 == leftBracketIndex) {
+            StringBuilder nines = new StringBuilder();
+            for (int i = 0; i < rightBracketIndex - leftBracketIndex - 1; i++) {
+                nines.append(9);
+            }
+            denominator = Integer.parseInt(nines.toString());
+            numerator = intPart * denominator + period;
+        }
+        else {
+            int nonPediod = Integer.parseInt(fraction.substring(pointIndex + 1, leftBracketIndex));
+            StringBuilder ninesAndZeros = new StringBuilder();
+            int nonPediodMultiplier = 1;
+            for (int i = 0; i < rightBracketIndex - leftBracketIndex - 1; i++) {
+                ninesAndZeros.append(9);
+                nonPediodMultiplier *= 10;
+            }
+            for (int i = 0; i < leftBracketIndex - pointIndex - 1; i++) {
+                ninesAndZeros.append(0);
+            }
+            denominator = Integer.parseInt(ninesAndZeros.toString());
+            numerator = intPart * denominator + nonPediod * nonPediodMultiplier + period - nonPediod;
+        }
+        for (int i = numerator; i > 1; i--) {
+            if (numerator % i == 0 && denominator % i == 0) {
+                numerator /= i;
+                denominator /= i;
+                break;
+            }
+        }
+        return numerator + "/" + denominator;
+    }
+
+    public static String pilish_string(String input) {
+        String output = "";
+        if ("".equals(input)) return output;
+        int[] pi = new int[] {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9};
+        for (int i = 0; i < pi.length; i++) {
+            if (input.length() == 0) break;
+            String word;
+            if (input.length() >= pi[i]) {
+                word = input.substring(0, pi[i]);
+                input = input.substring(pi[i]);
+            }
+            else {
+                word = input;
+                char lastChar = word.charAt(word.length() - 1);
+                while (word.length() != pi[i]) {
+                    word = word += lastChar;
+                }
+                output += word;
+                break;
+            }
+            output += word + " ";
+        }
+        return output.trim();
+    }
+
     public static boolean formula(String s) {
         String[] parts = s.split("=");
+        HashSet<Float> results = new HashSet<>();
         for (String string : parts) {
-            string.replaceAll(" ", "");
-            System.out.println(string);
+            String spaceless = string.replaceAll(" ", "");
+            if (spaceless.indexOf('*') != -1) {
+                int a = Integer.parseInt(spaceless.substring(0, spaceless.indexOf('*')));
+                int b = Integer.parseInt(spaceless.substring(spaceless.indexOf('*') + 1));
+                results.add((float)a * b);
+                continue;
+            }
+            if (spaceless.indexOf('/') != -1) {
+                int a = Integer.parseInt(spaceless.substring(0, spaceless.indexOf('/')));
+                int b = Integer.parseInt(spaceless.substring(spaceless.indexOf('/') + 1));
+                results.add((float)a / b);
+                continue;
+            }
+            if (spaceless.indexOf('+') != -1) {
+                int a = Integer.parseInt(spaceless.substring(0, spaceless.indexOf('+')));
+                int b = Integer.parseInt(spaceless.substring(spaceless.indexOf('+') + 1));
+                results.add((float)a + b);
+                continue;
+            }
+            if (spaceless.indexOf('-') != -1) {
+                int a = Integer.parseInt(spaceless.substring(0, spaceless.indexOf('-')));
+                int b = Integer.parseInt(spaceless.substring(spaceless.indexOf('-') + 1));
+                results.add((float)a - b);
+                continue;
+            }
+            results.add(Float.parseFloat(spaceless));
         }
-        return false;
+        return results.size() == 1;
     }
 
     public static String isValid(String s) {
