@@ -3,7 +3,7 @@ import java.util.*;
 public class Task6 {
     public static void main(String[] args) {
         System.out.println("1. " + hiddenAnagram("Bright is the moon", "Bongo mirth"));
-        System.out.println("2. " + stripUrlParams("https://edabit.com?a=1&b=2&a=2", new String[] {"b"}));
+        System.out.println("2. " + stripUrlParams("https://edabit.com?a=1&b=2&a=2", new ArrayList<String>(Arrays.asList("b"))));
         System.out.println("3. " + nicoCipher("iloveher", "612345"));
         System.out.println("4. " );
         System.out.println("5. " );
@@ -43,7 +43,7 @@ public class Task6 {
         return "noutfond";
     }
 
-    public static String stripUrlParams(String url, String[] toBeDeleted) {
+    public static String stripUrlParams(String url, ArrayList<String> toBeDeleted) {
         if (url.indexOf('?') == -1) return url;
         String afterQuestionMark = url.substring(url.indexOf('?') + 1);
         String[] keysAndValues = afterQuestionMark.split("&");
@@ -52,17 +52,26 @@ public class Task6 {
             String[] keyAndValue = pair.split("=");
             params.put(keyAndValue[0], keyAndValue[1]);
         }
-        for (String param : toBeDeleted) {
-            if (params.containsKey(param)) params.remove(param);
-        }
         StringBuilder updatedUrl = new StringBuilder();
         updatedUrl.append(url.substring(0, url.indexOf('?') + 1));
-        for (Map.Entry<String, String> pair : params.entrySet()) {
-            updatedUrl.append(pair.getKey() + "=" + pair.getValue() + "&");
+        if (toBeDeleted.isEmpty()) {
+            for (Map.Entry<String, String> pair : params.entrySet()) {
+                updatedUrl.append(pair.getKey() + "=" + pair.getValue() + "&");
+            }
+            if (updatedUrl.charAt(updatedUrl.length() - 1) == '&') updatedUrl.deleteCharAt(updatedUrl.length() - 1);
+            if (updatedUrl.charAt(updatedUrl.length() - 1) == '?') updatedUrl.deleteCharAt(updatedUrl.length() - 1);
+            return updatedUrl.toString();
         }
-        if (updatedUrl.charAt(updatedUrl.length() - 1) == '&') updatedUrl.deleteCharAt(updatedUrl.length() - 1);
-        if (updatedUrl.charAt(updatedUrl.length() - 1) == '?') updatedUrl.deleteCharAt(updatedUrl.length() - 1);
-        return updatedUrl.toString();
+        else {
+            if (params.containsKey(toBeDeleted.getLast())) params.remove(toBeDeleted.getLast());
+            for (Map.Entry<String, String> pair : params.entrySet()) {
+                updatedUrl.append(pair.getKey() + "=" + pair.getValue() + "&");
+            }
+            if (updatedUrl.charAt(updatedUrl.length() - 1) == '&') updatedUrl.deleteCharAt(updatedUrl.length() - 1);
+            if (updatedUrl.charAt(updatedUrl.length() - 1) == '?') updatedUrl.deleteCharAt(updatedUrl.length() - 1);
+            toBeDeleted.removeLast();
+            return stripUrlParams(updatedUrl.toString(), toBeDeleted);
+        }
     }
 
     public static String nicoCipher(String message, String key) {
