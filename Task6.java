@@ -5,8 +5,8 @@ public class Task6 {
         System.out.println("1. " + hiddenAnagram("Bright is the moon", "Bongo mirth"));
         System.out.println("2. " + stripUrlParams("https://edabit.com?a=1&b=2&a=2", new ArrayList<String>(Arrays.asList("b"))));
         System.out.println("3. " + nicoCipher("iloveher", "612345"));
-        System.out.println("4. " );
-        System.out.println("5. " );
+        System.out.println("4. " + Arrays.toString(isExact(40320)));
+        System.out.println("5. " + Arrays.toString(twoProduct(new int[] {1, 2, -1, 4, 5, 6, 10, 7}, 20)));
         System.out.println("6. " + fractions("0.19(2367)"));
         System.out.println("7. " + pilish_string("CANIMAKEAGUESSNOW"));
         System.out.println("8. " + formula("16 * 10 = 160 = 14 + 120"));
@@ -103,9 +103,27 @@ public class Task6 {
         return eMessage.toString();
     }
 
-    // public static int[] isExact(int n) {
-        
-    // }
+    public static int[] twoProduct(int[] arr, int n) {
+        for (int i = 0; i < arr.length; i++) {
+            for (int j = 0; j < i; j++) {
+                if (arr[i] * arr[j] == n) return new int[] {arr[j], arr[i]};
+            }
+        }
+        return new int[0];
+    }
+
+    public static int[] isExact(int n) {
+        if (n <= 0) return new int[0];
+        int result = factOfWhatNumber(1, 1, n);
+        if (result == -1) return new int[0];
+        else return new int[] {n, result};
+    }
+
+    public static int factOfWhatNumber(int factorial, int ofWhatNumber, int n) {
+        if (factorial == n) return ofWhatNumber;
+        if (factorial > n) return -1;
+        return factOfWhatNumber(factorial *= (ofWhatNumber + 1), ofWhatNumber + 1, n);
+    }
 
     public static String fractions(String fraction) {
         int pointIndex = fraction.indexOf('.');
