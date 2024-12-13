@@ -3,7 +3,7 @@ import java.util.*;
 public class Task6 {
     public static void main(String[] args) {
         System.out.println("1. " + hiddenAnagram("Bright is the moon", "Bongo mirth"));
-        System.out.println("2. " );
+        System.out.println("2. " + stripUrlParams("https://edabit.com?a=1&b=2&a=2", new String[] {"b"}));
         System.out.println("3. " + nicoCipher("iloveher", "612345"));
         System.out.println("4. " );
         System.out.println("5. " );
@@ -43,18 +43,34 @@ public class Task6 {
         return "noutfond";
     }
 
+    public static String stripUrlParams(String url, String[] toBeDeleted) {
+        if (url.indexOf('?') == -1) return url;
+        String afterQuestionMark = url.substring(url.indexOf('?') + 1);
+        String[] keysAndValues = afterQuestionMark.split("&");
+        HashMap<String, String> params = new HashMap<>();
+        for (String pair : keysAndValues) {
+            String[] keyAndValue = pair.split("=");
+            params.put(keyAndValue[0], keyAndValue[1]);
+        }
+        for (String param : toBeDeleted) {
+            if (params.containsKey(param)) params.remove(param);
+        }
+        StringBuilder updatedUrl = new StringBuilder();
+        updatedUrl.append(url.substring(0, url.indexOf('?') + 1));
+        for (Map.Entry<String, String> pair : params.entrySet()) {
+            updatedUrl.append(pair.getKey() + "=" + pair.getValue() + "&");
+        }
+        if (updatedUrl.charAt(updatedUrl.length() - 1) == '&') updatedUrl.deleteCharAt(updatedUrl.length() - 1);
+        if (updatedUrl.charAt(updatedUrl.length() - 1) == '?') updatedUrl.deleteCharAt(updatedUrl.length() - 1);
+        return updatedUrl.toString();
+    }
+
     public static String nicoCipher(String message, String key) {
         int height = message.length() / key.length();
         if (message.length() % key.length() != 0) height += 1;
         char[][] matrix = new char[height][key.length()];
         for (int i = 0; i < message.length(); i++) {
             matrix[i / key.length()][i % key.length()] = message.charAt(i);
-        }
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < key.length(); j++) {
-                System.out.print(matrix[i][j]);
-            }
-            System.out.println();
         }
         char[][] sortedMatrix = new char[height][key.length()];
         ArrayList<Integer> charsOfKey = new ArrayList<>();
@@ -67,12 +83,6 @@ public class Task6 {
                 sortedMatrix[j][i] = matrix[j][key.indexOf(charsOfKey.get(i))];
             }
             key = key.replaceFirst((char)(int)charsOfKey.get(i) + "", "+");
-        }
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < key.length(); j++) {
-                System.out.print(sortedMatrix[i][j]);
-            }
-            System.out.println();
         }
         String eMessage = "";
         for (int i = 0; i < height; i++) {
